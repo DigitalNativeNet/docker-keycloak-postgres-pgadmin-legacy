@@ -38,6 +38,17 @@ services:
     networks:
       - backend
 
+  app:
+    image: "dnnet/kc-pg-example-app:1.0"
+    build: ./app
+    depends_on:
+      - "postgres"
+      - "keycloak"
+    ports:
+      - "8280:80"
+    networks:
+      - backend
+
 networks:
   backend:
     name: backend
