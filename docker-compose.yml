@@ -38,10 +38,10 @@ services:
       - backend
 
   app:
-    image: "dnnet/kc-pg-example-app:1.0"
+    image: "dnnet/kc-pg-example-app:1.1"
     build: ./app
     environment:
-      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_URL=http://keycloak:8080/auth/realms/master
     depends_on:
       - "postgres"
       - "keycloak"

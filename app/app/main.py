@@ -3,6 +3,7 @@ import os
 from typing import Optional
 
 import requests
+from requests.adapters import HTTPAdapter, Retry
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -12,7 +13,7 @@ from pydantic import BaseModel, BaseSettings
 class Settings(BaseSettings):
     app_name: str = "Test Keycloak Auth App"
     public_key: Optional[str] = None
-    keycloak_url = os.getenv("KEYCLOAK_URL", "http://localhost:8180")
+    keycloak_url = os.getenv("KEYCLOAK_URL", "http://localhost:8180/auth/realms/master")
 
 class TokenData(BaseModel):
     username: Optional[str] = None
@@ -29,9 +30,16 @@ def read_kc_public_key():
     # Why doing this?
     # Because we want to fetch public key on start
     # Later we would verify incoming JWT tokens
+    # Timeout allows for services to start 
     try:
-        r = requests.get(settings.keycloak_url + "/auth/realms/master", timeout=3)
+        s = requests.Session()
+        retries = Retry(total=5,
+                        backoff_factor=2,
+                        connect=5)
+        s.mount('http://', HTTPAdapter(max_retries=retries))
+        r = s.get(settings.keycloak_url, timeout=3)
         r.raise_for_status()
+
         response_json = r.json()
         settings.public_key = f'-----BEGIN PUBLIC KEY-----\r\n{response_json["public_key"]}\r\n-----END PUBLIC KEY-----'
     except requests.exceptions.HTTPError as errh:
