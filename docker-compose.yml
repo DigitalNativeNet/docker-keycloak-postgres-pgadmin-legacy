@@ -5,6 +5,7 @@ services:
 
     image: "postgres:14-alpine"
     volumes:
+      - postgres:/var/lib/postgresql/data/
       - ./initdb:/docker-entrypoint-initdb.d/:ro
     env_file:
       - ./database.dev.env
@@ -37,9 +38,9 @@ services:
     networks:
       - backend
 
-  app:
-    image: "dnnet/kc-pg-example-app:1.1"
-    build: ./app
+  app1:
+    image: "dnnet/simple-keycloak-auth-app:1.0"
+    build: ./simple-keycloak-auth-app
     environment:
       - KEYCLOAK_URL=http://keycloak:8080/auth/realms/master
     depends_on:
@@ -50,8 +51,29 @@ services:
     networks:
       - backend
 
+  app2:
+    image: "dnnet/lib-keycloak-auth-app:1.0"
+    build: ./lib-keycloak-auth-app
+    environment:
+      - SERVER_URL=http://keycloak:8080/auth
+      - CLIENT_ID=lib-keycloak-app
+      - CLIENT_SECRET=B6gkERlZwXqKNQBzXcsCOPOslan3zpsN
+      - CLIENT_ADMIN_SECRET=me830xQwyHUHoTgZSZlwtBWdQlaTj019
+      - REALM=lib-keycloak-app
+      - CALLBACK_URI=http://localhost:8281/callback
+    depends_on:
+      - "postgres"
+      - "keycloak"
+    ports:
+      - "8281:80"
+    networks:
+      - backend
+
+
 networks:
   backend:
     name: backend
     driver: bridge
 
+volumes:
+  postgres:

@@ -1,0 +1,6 @@
+fastapi>=0.94.0
+pydantic>=1.8.0,<2.0.0
+uvicorn>=0.21.0
+python-jose[cryptography]
+requests
+fastapi_keycloak

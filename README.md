@@ -1,5 +1,61 @@
 # Setup
 
+# App descriptions
+
+## simple-keycloak-auth-app
+
+This app uses public access type
+
+## lib-keycloak-auth-app
+
+This app uses confidential access type
+
+## oauth2proxy + app
+
+This app uses public access type
+
+## Keycloak Setup
+
+## simple-keycloak-auth-app 
+
+Uses the master realm with no additional configuration needed.
+
+## lib-keycloak-auth-app
+
+### Create a new realm
+
+    * General: Enabled, OpenID Endpoint Configuration
+    * Login: User registration enabled
+
+### Create a new client
+
+    * Settings: Enabled, Direct Access Granted, Service Accounts Enabled, Authorization Enabled
+    * Scope: Full Scope Allowed (Will automatically grant all available roles to all users using this client, you may want to disable this and assign the roles to the client manually)
+    * Valid Redirect URIs: http://localhost:8081/callback (Or whatever you configure in your python app)
+
+### Modify the admin-cli client
+
+    * Settings: Service Accounts Enabled
+    * Scope: Full Scope Allowed
+    * Service Account Roles: Select all Client Roles available for account and realm_management
+
+### Setting credentials
+
+*Important*
+
+The first time this is run and keycloak is configurured, the client secret needs
+to be obtained from the lib-keycloak-app > credentials and admin-cli >
+credentials pages and imported into the docker-compose file (or via .env) in app2 section.
+
+
+# Useful reading on Access Types
+
+https://stackoverflow.com/questions/58911507/keycloak-bearer-only-clients-why-do-they-exist
+
+* Public - web app - will be forced to login
+* Confidential - backend that hold secrets
+* Bearer-only - api used by web app, same token can be used 
+
 
 
 # Keycloak Tokens
